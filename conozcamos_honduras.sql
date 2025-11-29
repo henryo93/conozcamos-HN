@@ -64,44 +64,6 @@ INSERT INTO `modalidad` VALUES (1,'Verdadero O Falso'),(2,'Opcion Multiple');
 UNLOCK TABLES;
 
 --
--- Table structure for table `orders`
---
-
-DROP TABLE IF EXISTS `orders`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `orders` (
-  `orderIdentifier` varchar(100) DEFAULT NULL,
-  `orderLineNumber` varchar(100) DEFAULT NULL,
-  `orderType` varchar(100) DEFAULT NULL,
-  `productpartNumber` varchar(100) DEFAULT NULL,
-  `shipFromInstructionLocationlocationIdentifier` varchar(100) DEFAULT NULL,
-  `shipToLocationlocationIdentifier` varchar(100) DEFAULT NULL,
-  `status` varchar(100) DEFAULT NULL,
-  `createdDate` varchar(100) DEFAULT NULL,
-  `requestedShipDate` varchar(100) DEFAULT NULL,
-  `requestedDeliveryDate` varchar(100) DEFAULT NULL,
-  `plannedShipDate` varchar(100) DEFAULT NULL,
-  `plannedDeliveryDate` varchar(100) DEFAULT NULL,
-  `quantity` varchar(100) DEFAULT NULL,
-  `quantityUnits` varchar(100) DEFAULT NULL,
-  `productValue` varchar(100) DEFAULT NULL,
-  `value` varchar(100) DEFAULT NULL,
-  `valueCurrency` varchar(100) DEFAULT NULL,
-  `shipmentCount` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `orders`
---
-
-LOCK TABLES `orders` WRITE;
-/*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-/*!40000 ALTER TABLE `orders` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `pregunta`
 --
 
@@ -116,6 +78,10 @@ CREATE TABLE `pregunta` (
   `nombre` varchar(45) NOT NULL,
   PRIMARY KEY (`idPregunta`),
   KEY `idTrivia_idx` (`idTrivia`),
+  KEY `fk_preguntaDificultad` (`idDificultad`),
+  KEY `fk_preguntaModalidad` (`idModalidad`),
+  CONSTRAINT `fk_preguntaDificultad` FOREIGN KEY (`idDificultad`) REFERENCES `dificultad` (`id`),
+  CONSTRAINT `fk_preguntaModalidad` FOREIGN KEY (`idModalidad`) REFERENCES `modalidad` (`id`),
   CONSTRAINT `fk_preguntaTrivia` FOREIGN KEY (`idTrivia`) REFERENCES `trivia` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -146,7 +112,15 @@ CREATE TABLE `ranking` (
   `tiempoFin` int NOT NULL,
   `totalPuntos` int NOT NULL,
   `idUsuario` int DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `fk_rankingTrivia` (`idTrivia`),
+  KEY `fk_rankingDificultad` (`idDificultad`),
+  KEY `fk_rankingModalidad` (`idModalidad`),
+  KEY `fk_rankingUsuario` (`idUsuario`),
+  CONSTRAINT `fk_rankingDificultad` FOREIGN KEY (`idDificultad`) REFERENCES `dificultad` (`id`),
+  CONSTRAINT `fk_rankingModalidad` FOREIGN KEY (`idModalidad`) REFERENCES `modalidad` (`id`),
+  CONSTRAINT `fk_rankingTrivia` FOREIGN KEY (`idTrivia`) REFERENCES `trivia` (`id`),
+  CONSTRAINT `fk_rankingUsuario` FOREIGN KEY (`idUsuario`) REFERENCES `usuario` (`idUsuario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -168,10 +142,12 @@ DROP TABLE IF EXISTS `respuesta`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `respuesta` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `idPregunta` varchar(45) DEFAULT NULL,
+  `idPregunta` int DEFAULT NULL,
   `nombre` varchar(45) NOT NULL,
   `puntos` int NOT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `fk_respuestaPregunta` (`idPregunta`),
+  CONSTRAINT `fk_respuestaPregunta` FOREIGN KEY (`idPregunta`) REFERENCES `pregunta` (`idPregunta`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -242,4 +218,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-11-28 20:42:09
+-- Dump completed on 2025-11-29 15:38:56
