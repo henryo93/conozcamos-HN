@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { loginUsuario } from "@/servicios/auth";
+import { loginUsuario } from "../../servicios/auth";
 
 export default function LoginPage() {
   const [correo, setCorreo] = useState("");
@@ -20,47 +20,47 @@ export default function LoginPage() {
       // Guardar usuario en localStorage para usar en ranking o puntaje
       localStorage.setItem("usuario", JSON.stringify(data.data));
 
-      window.location.href = "/general/trivias";
+      window.location.href = "/general/trivia";
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión");
     }
   };
 
   return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50 p-6">
-        <div className="w-full max-w-lg bg-white rounded-lg shadow p-8">
-        <h1 className="text-2xl font-bold mb-6 text-blue-700">Iniciar Sesión</h1>
+    <div>
+      <div className="card" style={{ maxWidth: 520, margin: "2rem auto" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#4f46e5" }}>Iniciar Sesión</h1>
 
-        <div className="w-full max-w-sm flex flex-col gap-4">
+        <div style={{ marginTop: 16 }}>
           <input
-            className="p-3 rounded-lg border"
+            className="form-input"
             type="email"
             placeholder="Correo"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
+            style={{ marginBottom: 12 }}
           />
+
           <input
-            className="p-3 rounded-lg border"
+            className="form-input"
             type="password"
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            style={{ marginBottom: 12 }}
           />
 
-          <button
-            onClick={manejarLogin}
-            className="bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition"
-          >
+          <button onClick={manejarLogin} className="primary-btn" style={{ width: "100%" }}>
             Entrar
           </button>
 
-          {error && <p className="text-red-600 text-center">{error}</p>}
+          {error && <p style={{ color: "#ef4444", marginTop: 12, textAlign: "center" }}>{error}</p>}
 
-          <a href="/general/registro" className="text-center text-blue-600 hover:underline mt-4">
-            Ir a Registrarme
-          </a>
-        </div>
+          <div style={{ marginTop: 12, textAlign: "center" }}>
+            <a href="/general/registro" className="secondary-link">Ir a Registrarme</a>
+          </div>
         </div>
       </div>
+    </div>
   );
 }

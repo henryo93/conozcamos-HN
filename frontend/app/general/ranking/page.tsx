@@ -1,49 +1,99 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { obtenerRanking } from "@/servicios/ranking";
+import { useSearchParams } from "next/navigation";
+import { obtenerRanking } from "../../servicios/ranking";
 
-export default function RankingPage({ searchParams }: any) {
-  const idTrivia = Number(searchParams?.idTrivia || 0);
-  const idDificultad = Number(searchParams?.idDificultad || 0);
-  const idModalidad = Number(searchParams?.idModalidad || 0);
+export default function RankingPage() {
+  const searchParams = useSearchParams();
+
+  const idTrivia = Number(searchParams.get("idTrivia"));
+  const idDificultad = Number(searchParams.get("idDificultad"));
+  const idModalidad = Number(searchParams.get("idModalidad"));
+
+  // ✅ Validación fuerte
+  if (!idTrivia || !idDificultad || !idModalidad) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl font-bold text-red-600">
+          ❌ Parámetros inválidos para ranking
+        </p>
+      </div>
+    );
+  }
 
   const [ranking, setRanking] = useState<any[]>([]);
-  const [cargando, setCargando] = useState(true);
+  const [loading, setLoading] = useState(true);
 
+  /* =========================
+     CARGAR RANKING
+  ========================= */
   useEffect(() => {
     async function cargar() {
       try {
-        setCargando(true);
-        const data = await obtenerRanking({ idTrivia, idDificultad, idModalidad });
-        setRanking(data || []);
-      } catch (e) {
-        setRanking([]);
+        const data = await obtenerRanking({
+          idTrivia,
+          idDificultad,
+          idModalidad,
+        });
+        setRanking(data);
+      } catch (error) {
+        console.error("Error ranking:", error);
       } finally {
-        setCargando(false);
+        setLoading(false);
       }
     }
+
     cargar();
   }, [idTrivia, idDificultad, idModalidad]);
 
-  return (
-    <div className="min-h-screen p-6 bg-blue-100 flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-6 text-blue-700">Ranking</h1>
-
-      <div className="w-full max-w-md bg-white p-4 rounded-lg shadow">
-        {cargando && <p className="text-center">Cargando...</p>}
-        {!cargando && ranking.length === 0 && <p className="text-center">Sin resultados aún</p>}
-
-        {ranking.map((r: any, i: number) => (
-          <div key={r.id || i} className="flex justify-between border-b py-2">
-            <span>#{i + 1}</span>
-            <span>{r.idUsuario ?? r.apodo ?? "Anon"}</span>
-            <span>{r.totalPuntos} pts</span>
-          </div>
-        ))}
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-2xl">
+        📊 Cargando ranking...
       </div>
+    );
+  }
 
-      <a href="/general/trivias" className="mt-6 text-blue-700 hover:underline">Ir a Trivias</a>
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 p-6">
+      <div className="card" style={{ maxWidth: 720 }}>
+        <h1 style={{ fontSize: 22, fontWeight: 900, textAlign: "center", marginBottom: 12 }}>🏆 Ranking</h1>
+
+        {ranking.length === 0 ? (
+          <div style={{ textAlign: "center", padding: 24 }}>
+            <p className="text-center text-gray-500">No hay resultados aún</p>
+          </div>
+        ) : (
+          <div style={{ overflowX: "auto" }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid #e6e6e6" }}>
+                  <th style={{ textAlign: "left", padding: "8px 6px" }}>#</th>
+                  <th style={{ textAlign: "left", padding: "8px 6px" }}>Usuario</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px" }}>Puntos</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {ranking.map((r, i) => (
+                  <tr key={r.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
+                    <td style={{ padding: "10px 6px" }}>{i + 1}</td>
+                    <td style={{ padding: "10px 6px" }}>{r.apodo || "Jugador"}</td>
+                    <td style={{ padding: "10px 6px", textAlign: "right", fontWeight: 800 }}>{r.totalPuntos}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        <div style={{ marginTop: 18, textAlign: "center" }}>
+          <a href="/general/trivia" className="primary-btn" style={{ display: "inline-block" }}>
+            🔁 Jugar otra vez
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

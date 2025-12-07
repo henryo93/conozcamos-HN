@@ -12,7 +12,7 @@ export async function obtenerModalidades() {
   return data;
 }
 
-export async function obtenerTrivias() {
+export async function obtenerTrivia() {
   const res = await fetch(`${API_URL}/trivias`);
   const data = await res.json();
   return data;

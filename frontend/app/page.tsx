@@ -1,22 +1,28 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-blue-50 p-6">
-      <div className="w-full max-w-lg bg-white rounded-lg shadow p-8">
-        <h1 className="text-2xl font-bold text-blue-700 mb-4">Conozcamos Honduras</h1>
-        
-        <p className="text-gray-600 mb-6">Bienvenido. Elige una sección para comenzar:</p>
+    <div>
+      <div className="card" style={{ maxWidth: 700, margin: "2.5rem auto", textAlign: "center" }}>
+        <h1 style={{ fontSize: 32, fontWeight: 900, color: "#111827" }}>Conozcamos Honduras</h1>
 
-        <nav className="flex flex-col gap-3">
-          
-          <Link href="/general/registro" className="block text-center bg-green-600 text-white py-3 rounded-lg hover:bg-green-700">Registro</Link>
-          
-          <Link href="/general/login" className="block text-center bg-gray-600 text-white py-3 rounded-lg hover:bg-gray-700">Login</Link>
-        
+        {/* Logo: coloca `logo.png` dentro de `public/` y se mostrará aquí */}
+        <div style={{ display: "flex", justifyContent: "center", marginTop: 12 }}>
+          <Image src="/logo.png" alt="Logo Conozcamos Honduras" width={96} height={96} priority />
+        </div>
+
+        <p style={{ color: "#6b7280", marginTop: 8 }}>Bienvenido. Elige una sección para comenzar:</p>
+
+        <nav style={{ display: "grid", gap: 12, marginTop: 18 }}>
+          <Link href="/general/registro" className="primary-btn" style={{ textAlign: "center" }}>
+            📝 Registro
+          </Link>
+
+          <Link href="/general/login" className="primary-btn" style={{ textAlign: "center", background: "linear-gradient(90deg,#7c3aed,#06b6d4)" }}>
+            🔐 Login
+          </Link>
         </nav>
-
-        
       </div>
     </div>
   );

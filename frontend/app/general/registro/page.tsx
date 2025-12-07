@@ -29,46 +29,46 @@ export default function RegistroPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-blue-50 p-6">
-      <div className="w-full max-w-lg bg-white rounded-lg shadow p-8">
-        <h1 className="text-2xl font-bold mb-6 text-blue-700">Crear Cuenta</h1>
+    <div>
+      <div className="card" style={{ maxWidth: 520, margin: "2rem auto" }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#4f46e5" }}>Crear Cuenta</h1>
 
-        <div className="w-full max-w-sm flex flex-col gap-4">
+        <div style={{ marginTop: 16 }}>
           <input
-            className="p-3 rounded-lg border"
+            className="form-input"
             type="text"
             placeholder="Nombre de usuario"
             value={usuario}
             onChange={(e) => setUsuario(e.target.value)}
+            style={{ marginBottom: 12 }}
           />
           <input
-            className="p-3 rounded-lg border"
+            className="form-input"
             type="email"
             placeholder="Correo electrónico"
             value={correo}
             onChange={(e) => setCorreo(e.target.value)}
+            style={{ marginBottom: 12 }}
           />
           <input
-            className="p-3 rounded-lg border"
+            className="form-input"
             type="password"
             placeholder="Contraseña"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            style={{ marginBottom: 12 }}
           />
 
-          <button
-            onClick={manejarRegistro}
-            className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition"
-          >
+          <button onClick={manejarRegistro} className="primary-btn" style={{ width: "100%" }}>
             Registrarme
           </button>
 
-          {mensaje && <p className="text-green-600 text-center">{mensaje}</p>}
-          {error && <p className="text-red-600 text-center">{error}</p>}
+          {mensaje && <p style={{ color: "#10b981", marginTop: 12, textAlign: "center" }}>{mensaje}</p>}
+          {error && <p style={{ color: "#ef4444", marginTop: 12, textAlign: "center" }}>{error}</p>}
 
-          <a href="/general/login" className="text-center text-blue-600 hover:underline mt-4">
-            Ir a Login
-          </a>
+          <div style={{ marginTop: 12, textAlign: "center" }}>
+            <a href="/general/login" className="secondary-link">Ir a Login</a>
+          </div>
         </div>
       </div>
     </div>

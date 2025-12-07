@@ -174,8 +174,8 @@ app.post("/ranking", async (req, res) => {
   }
 });
 
-// rankings
-app.get("/rankings", async (req, res) => {
+// ranking
+app.get("/ranking", async (req, res) => {
   const { idTrivia, idDificultad, idModalidad, idUsuario } = req.query;
   try {
     const where = {};

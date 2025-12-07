@@ -1,146 +1,218 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { obtenerPreguntas, obtenerRespuestas } from "@/servicios/preguntas";
-import { guardarRanking } from "@/servicios/ranking";
+import { useSearchParams } from "next/navigation";
+import { obtenerPreguntas, obtenerRespuestas } from "../../servicios/preguntas";
+import { guardarRanking } from "../../servicios/ranking";
 
-type PreguntaConRespuestas = {
-  idPregunta: number;
-  nombre: string;
-  respuestas: any[];
-};
+export default function JuegoPage() {
+  const searchParams = useSearchParams();
 
-export default function JuegoPage({ searchParams }: any) {
-  const idTrivia = Number(searchParams.idTrivia);
-  const idDificultad = Number(searchParams.idDificultad);
-  const idModalidad = Number(searchParams.idModalidad);
+  const idTrivia = Number(searchParams.get("idTrivia"));
+  const idDificultad = Number(searchParams.get("idDificultad"));
+  const idModalidad = Number(searchParams.get("idModalidad"));
 
-  const [preguntas, setPreguntas] = useState<PreguntaConRespuestas[]>([]);
-  const [indice, setIndice] = useState(0);
-  const [totalPuntos, setTotalPuntos] = useState(0);
-  const [cargando, setCargando] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [completado, setCompletado] = useState(false);
-  const [tiempoInicio, setTiempoInicio] = useState<string | null>(null);
+  // ✅ Validación fuerte
+  if (!idTrivia || !idDificultad || !idModalidad) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-xl font-bold text-red-600">
+          ❌ Parámetros inválidos del juego
+        </p>
+      </div>
+    );
+  }
 
+  const [preguntas, setPreguntas] = useState<any[]>([]);
+  const [respuestas, setRespuestas] = useState<any[]>([]);
+  const [pos, setPos] = useState(0);
+  const [puntos, setPuntos] = useState(0);
+
+  const [seleccion, setSeleccion] = useState<number | null>(null);
+  const [respondido, setRespondido] = useState(false);
+
+  // ⏱️ Tiempo: Básico 5 min – Experto 3 min
+  const tiempoInicial = idDificultad === 2 ? 180 : 300;
+  const [tiempo, setTiempo] = useState(tiempoInicial);
+
+  const usuario =
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("usuario") || "null")
+      : null;
+
+  /* =========================
+     CARGAR PREGUNTAS
+  ========================= */
   useEffect(() => {
-    async function cargarJuego() {
-      try {
-        setCargando(true);
-        const datos = await obtenerPreguntas({ idTrivia, idDificultad, idModalidad });
+    async function cargar() {
+      const preg = await obtenerPreguntas({
+        idTrivia,
+        idDificultad,
+        idModalidad,
+      });
 
-        // Para cada pregunta obtener respuestas
-        const preguntasConResp: PreguntaConRespuestas[] = await Promise.all(
-          datos.map(async (p: any) => {
-            const resp = await obtenerRespuestas(p.idPregunta);
-            return { idPregunta: p.idPregunta, nombre: p.nombre, respuestas: resp };
-          })
-        );
+      setPreguntas(preg);
 
-        setPreguntas(preguntasConResp);
-        setIndice(0);
-        setTotalPuntos(0);
-        setTiempoInicio(new Date().toISOString());
-      } catch (err: any) {
-        setError(err.message || "Error al cargar preguntas");
-      } finally {
-        setCargando(false);
+      if (preg.length > 0) {
+        const resp = await obtenerRespuestas(preg[0].idPregunta);
+        setRespuestas(resp);
       }
     }
 
-    cargarJuego();
+    cargar();
   }, [idTrivia, idDificultad, idModalidad]);
 
-  const seleccionarRespuesta = (puntos: number) => {
-    setTotalPuntos((t) => t + (puntos || 0));
-
-    if (indice + 1 >= preguntas.length) {
-      terminar();
-    } else {
-      setIndice((i) => i + 1);
-    }
-  };
-
-  const terminar = async () => {
-    const fin = new Date().toISOString();
-    const usuario = typeof window !== 'undefined' ? localStorage.getItem('usuario') : null;
-    let idUsuario = null;
-    try {
-      if (usuario) {
-        const parsed = JSON.parse(usuario);
-        idUsuario = parsed.idUsuario || null;
-      }
-    } catch (e) {
-      idUsuario = null;
+  /* =========================
+     TIMER GLOBAL
+  ========================= */
+  useEffect(() => {
+    if (tiempo <= 0) {
+      finalizarPorTiempo();
+      return;
     }
 
+    const intervalo = setInterval(() => {
+      setTiempo((t) => t - 1);
+    }, 1000);
+
+    return () => clearInterval(intervalo);
+  }, [tiempo]);
+
+  /* =========================
+     FINALIZAR JUEGO
+  ========================= */
+  async function finalizarPorTiempo() {
     try {
       await guardarRanking({
         idTrivia,
         idDificultad,
         idModalidad,
-        tiempoInicio,
-        tiempoFin: fin,
-        totalPuntos,
-        idUsuario,
+        idUsuario: usuario?.idUsuario ?? 1,
+        tiempoInicio: new Date().toISOString(),
+        tiempoFin: new Date().toISOString(),
+        totalPuntos: puntos,
       });
-    } catch (err) {
-      // no bloquear si falla guardar ranking
-      console.error("Error guardando ranking", err);
+    } catch (err: any) {
+      // Mostrar error al usuario y registrar en consola
+      console.error("Error guardando ranking:", err);
+      // Aviso amable al usuario; redirigimos igualmente a la pantalla de ranking
+      alert("No se pudo guardar el ranking en este momento. Serás redirigido al ranking.");
     }
 
-    setCompletado(true);
+    window.location.href = `/general/ranking?idTrivia=${idTrivia}&idDificultad=${idDificultad}&idModalidad=${idModalidad}`;
+  }
+
+  /* =========================
+     RESPONDER
+  ========================= */
+  const responder = (idRespuesta: number) => {
+    if (respondido) return;
+
+    setSeleccion(idRespuesta);
+    setRespondido(true);
+
+    // ✅ CORRECTO según tu BD
+    const correctaId = respuestas.find(
+      (r) => Number(r.puntos) === 1
+    )?.id;
+
+    if (idRespuesta === correctaId) {
+      setPuntos((p) => p + 1);
+    }
   };
 
-  if (cargando) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">Cargando...</div>
-    );
-  }
+  /* =========================
+     SIGUIENTE PREGUNTA
+  ========================= */
+  const siguiente = async () => {
+    const siguienteIndex = pos + 1;
 
-  if (error) {
+    if (siguienteIndex >= preguntas.length) {
+      await finalizarPorTiempo();
+      return;
+    }
+
+    setPos(siguienteIndex);
+    setSeleccion(null);
+    setRespondido(false);
+
+    const resp = await obtenerRespuestas(
+      preguntas[siguienteIndex].idPregunta
+    );
+    setRespuestas(resp);
+  };
+
+  // LOADING
+  if (preguntas.length === 0) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6">
-        <p className="text-red-600">{error}</p>
-        <a href="/general/trivias" className="mt-4 text-blue-600 hover:underline">Volver a Trivias</a>
+      <div className="min-h-screen flex items-center justify-center text-2xl">
+        🎲 Cargando preguntas...
       </div>
     );
   }
 
-  if (completado) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-6">
-        <h1 className="text-2xl font-bold mb-4">Juego terminado</h1>
-        <p className="mb-4">Has obtenido <strong>{totalPuntos}</strong> puntos.</p>
-        <a href={`/general/ranking?idTrivia=${idTrivia}&idDificultad=${idDificultad}&idModalidad=${idModalidad}`} className="text-blue-600 hover:underline">Ver Ranking</a>
-        <a href="/general/trivias" className="mt-4 text-blue-600 hover:underline">Volver a Trivias</a>
-      </div>
-    );
-  }
+  const actual = preguntas[pos];
+  const correcta = respuestas.find(
+    (r) => Number(r.puntos) === 1
+  )?.id;
 
-  const pregunta = preguntas[indice];
-
+  /* =========================
+     UI
+  ========================= */
   return (
-    <div className="min-h-screen p-6 bg-blue-100 flex flex-col items-center">
-      <div className="w-full max-w-2xl bg-white p-6 rounded-lg shadow">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Pregunta {indice + 1} de {preguntas.length}</h2>
-          <div>Puntos: {totalPuntos}</div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-500 to-purple-500">
+      <div className="bg-white rounded-xl p-6 w-full max-w-lg text-center">
+
+        {/* TIMER */}
+        <div className="mb-4">
+          <p className="font-bold">⏱️ Tiempo restante</p>
+          <p className="text-red-600 text-2xl font-extrabold">
+            {Math.floor(tiempo / 60)}:{String(tiempo % 60).padStart(2, "0")}
+          </p>
         </div>
 
-        <h3 className="text-lg mb-6">{pregunta?.nombre}</h3>
+        <h2 className="text-lg font-bold mb-2">
+          Pregunta {pos + 1} / {preguntas.length}
+        </h2>
 
-        <div className="grid gap-3">
-          {pregunta?.respuestas?.map((r: any) => (
-            <button
-              key={r.id}
-              onClick={() => seleccionarRespuesta(r.puntos)}
-              className="text-left p-3 border rounded hover:bg-gray-100"
-            >
-              {r.nombre}
-            </button>
-          ))}
+        {/* ✅ IMPORTANTE: TU BD USA `nombre` */}
+        <p className="font-semibold mb-4">{actual.nombre}</p>
+
+        {/* RESPUESTAS */}
+        <div className="flex flex-col gap-3">
+          {respuestas.map((r: any) => {
+            const isCorrect = r.id === correcta;
+            const isSelected = r.id === seleccion;
+
+            let clase = "py-3 rounded-lg font-semibold bg-indigo-500 text-white";
+
+            if (respondido && isCorrect) clase = "py-3 rounded-lg font-semibold bg-green-500 text-white";
+            if (respondido && isSelected && !isCorrect) clase = "py-3 rounded-lg font-semibold bg-red-500 text-white";
+            if (respondido && !isSelected && !isCorrect) clase = "py-3 rounded-lg font-semibold bg-gray-300 text-gray-700";
+
+            return (
+              <button
+                key={r.id} // ✅ CLAVE ÚNICA REAL
+                disabled={respondido}
+                onClick={() => responder(r.id)}
+                className={clase}
+              >
+                {r.nombre}
+              </button>
+            );
+          })}
         </div>
+
+        {respondido && (
+          <button
+            onClick={siguiente}
+            className="mt-6 bg-yellow-400 text-black py-2 px-6 rounded-lg font-bold hover:bg-yellow-500"
+          >
+            👉 Siguiente
+          </button>
+        )}
+
+        <p className="mt-4 font-bold">⭐ Puntos: {puntos}</p>
       </div>
     </div>
   );
