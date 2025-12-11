@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-// Registrar usuario (usa /registro, no /register)
+// Registrar al usuario
 export async function registrarUsuario(datos: {
   correo: string;
   apodo: string;
@@ -15,7 +15,6 @@ export async function registrarUsuario(datos: {
   });
 
   if (!respuesta.ok) {
-    // Puedes ajustar esto según lo que devuelva tu backend
     const error = await respuesta.json().catch(() => ({}));
     throw new Error(error.msg || "Error al registrar usuario");
   }
@@ -23,7 +22,7 @@ export async function registrarUsuario(datos: {
   return respuesta.json();
 }
 
-// Login (ajusta la ruta si tu backend usa otro nombre)
+//Login
 export async function loginUsuario(datos: {
   correo: string;
   contrasenia: string;

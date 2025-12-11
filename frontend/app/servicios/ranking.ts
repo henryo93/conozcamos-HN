@@ -1,17 +1,14 @@
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-
-/* =========================
-   TIPOS
-========================= */
+//ranking
 interface GuardarRankingDTO {
   idTrivia: number;
   idDificultad: number;
   idModalidad: number;
   idUsuario: number;
   totalPuntos: number;
-  tiempoInicio: string; // ISO STRING
-  tiempoFin: string;    // ISO STRING
+  fecha: string; // iso string es lo que me sirvio
+  tiempo: string;    // tiempo en formato string
 }
 
 interface ObtenerRankingParams {
@@ -20,9 +17,8 @@ interface ObtenerRankingParams {
   idModalidad?: number;
 }
 
-/* =========================
-   GUARDAR RANKING
-========================= */
+//Guardar rankings.
+
 export async function guardarRanking(datos: GuardarRankingDTO) {
   const res = await fetch(`${API_URL}/ranking`, {
     method: "POST",
@@ -53,9 +49,7 @@ export async function guardarRanking(datos: GuardarRankingDTO) {
   return data;
 }
 
-/* =========================
-   OBTENER RANKING
-========================= */
+//obtener rankings
 export async function obtenerRanking(params: ObtenerRankingParams = {}) {
   const query = new URLSearchParams();
 
@@ -66,7 +60,7 @@ export async function obtenerRanking(params: ObtenerRankingParams = {}) {
   if (params.idModalidad !== undefined)
     query.append("idModalidad", params.idModalidad.toString());
 
-  const res = await fetch(`${API_URL}/rankings?${query.toString()}`);
+  const res = await fetch(`${API_URL}/ranking?${query.toString()}`);
 
   let data: any = null;
   const contentType = res.headers.get("content-type");
@@ -78,7 +72,7 @@ export async function obtenerRanking(params: ObtenerRankingParams = {}) {
   }
 
   if (!res.ok) {
-    console.error("❌ Error backend obtener ranking:", data);
+    console.error("Error backend obtener ranking:", data);
     const mensaje =
       (data && data.msg) ||
       (typeof data === "string" && data) ||

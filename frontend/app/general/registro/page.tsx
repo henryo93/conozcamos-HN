@@ -23,6 +23,7 @@ export default function RegistroPage() {
       });
 
       setMensaje(data.msg);
+      
     } catch (err: any) {
       setError(err.message || "Error al registrar");
     }

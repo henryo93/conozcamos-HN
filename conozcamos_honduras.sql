@@ -108,8 +108,8 @@ CREATE TABLE `ranking` (
   `idTrivia` int NOT NULL,
   `idDificultad` int NOT NULL,
   `idModalidad` int NOT NULL,
-  `tiempoInicio` int NOT NULL,
-  `tiempoFin` int NOT NULL,
+  `fecha` datetime NOT NULL,
+  `tiempo` time NOT NULL,
   `totalPuntos` int NOT NULL,
   `idUsuario` int DEFAULT NULL,
   PRIMARY KEY (`id`),
@@ -198,7 +198,7 @@ CREATE TABLE `usuario` (
   `apodo` varchar(45) NOT NULL,
   `contrasenia` varchar(45) NOT NULL,
   PRIMARY KEY (`idUsuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -207,7 +207,7 @@ CREATE TABLE `usuario` (
 
 LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
-INSERT INTO `usuario` VALUES (1,'henryvilleda@gmail.com','henryVilleda10','123admin'),(2,'henryohara93@gmail.com','henry2','1234'),(3,'norman01@gmail.com','norman01','12345');
+INSERT INTO `usuario` VALUES (1,'henryvilleda@gmail.com','henryVilleda10','123admin'),(2,'henryohara93@gmail.com','henry2','1234'),(3,'norman01@gmail.com','norman01','12345'),(4,'henry1@gmail.com','henry01','12345'),(5,'henry@gmail.com','henry22','12345'),(6,'henry3@gmail.com','henry3','1234');
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -220,4 +220,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-07 15:31:35
+-- Dump completed on 2025-12-08 11:52:10

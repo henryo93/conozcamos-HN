@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 const express = require("express");
 const sequelize = require("./conexion/database");
 const { Op } = require("sequelize");
@@ -32,7 +32,9 @@ app.post("/registro", async (req, res) => {
     });
 
     if (existeusuario) {
-      return res.status(400).json({ msg: "El correo o apodo ya esta registrado" });
+      return res
+        .status(400)
+        .json({ msg: "El correo o apodo ya esta registrado" });
     }
 
     await Usuario.create({ correo, apodo, contrasenia });
@@ -41,9 +43,8 @@ app.post("/registro", async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message || error });
   }
- 
 });
- //login del usuario
+//login del usuario
 app.post("/login", async (req, res) => {
   const { correo, contrasenia } = req.body;
 
@@ -122,7 +123,7 @@ app.get("/preguntas", async (req, res) => {
   }
 });
 
-//respuestas 
+//respuestas
 app.get("/respuestas/:idPregunta", async (req, res) => {
   const { idPregunta } = req.params;
   try {
@@ -139,8 +140,8 @@ app.post("/ranking", async (req, res) => {
     idTrivia,
     idDificultad,
     idModalidad,
-    tiempoInicio,
-    tiempoFin,
+    fecha,
+    tiempo,
     totalPuntos,
     idUsuario,
   } = req.body;
@@ -151,10 +152,12 @@ app.post("/ranking", async (req, res) => {
     idModalidad == null ||
     idUsuario == null ||
     totalPuntos == null ||
-    !tiempoInicio ||
-    !tiempoFin
+    !fecha ||
+    !tiempo
   ) {
-    return res.status(400).json({ msg: "Faltan campos obligatorios para ranking" });
+    return res
+      .status(400)
+      .json({ msg: "Faltan campos obligatorios para ranking" });
   }
 
   try {
@@ -162,8 +165,8 @@ app.post("/ranking", async (req, res) => {
       idTrivia,
       idDificultad,
       idModalidad,
-      tiempoInicio,
-      tiempoFin,
+      fecha,
+      tiempo,
       totalPuntos,
       idUsuario,
     });
@@ -176,20 +179,53 @@ app.post("/ranking", async (req, res) => {
 
 // ranking
 app.get("/ranking", async (req, res) => {
-  const { idTrivia, idDificultad, idModalidad, idUsuario } = req.query;
+  const { idTrivia, idDificultad, idModalidad } = req.query;
   try {
     const where = {};
     if (idTrivia) where.idTrivia = idTrivia;
     if (idDificultad) where.idDificultad = idDificultad;
     if (idModalidad) where.idModalidad = idModalidad;
-    if (idUsuario) where.idUsuario = idUsuario;
+
+    // Busca los nombres
+    const [modalidadObj, triviaObj, dificultadObj] = await Promise.all([
+      idModalidad ? Modalidad.findByPk(idModalidad) : null,
+      idTrivia ? Trivia.findByPk(idTrivia) : null,
+      idDificultad ? Dificultad.findByPk(idDificultad) : null,
+    ]);
 
     const filas = await Ranking.findAll({
       where,
-      order: [["totalPuntos", "DESC"], ["tiempoFin", "ASC"]],
+      include: [
+        {
+          model: Usuario,
+          attributes: ["apodo"],
+        },
+        {
+          model: Trivia,
+          as: "trivia",
+          attributes: ["nombre"],
+        },
+        {
+          model: Dificultad,
+          attributes: ["nombre"],
+        },
+        {
+          model: Modalidad,
+          attributes: ["nombre"],
+        },
+      ],
+      order: [
+        ["totalPuntos", "DESC"],
+        ["tiempo", "ASC"],
+      ],
     });
 
-    res.status(200).json(filas);
+    res.status(200).json({
+      modalidad: modalidadObj ? modalidadObj.nombre : "",
+      trivia: triviaObj ? triviaObj.nombre : "",
+      dificultad: dificultadObj ? dificultadObj.nombre : "",
+      filas,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message || error });
   }

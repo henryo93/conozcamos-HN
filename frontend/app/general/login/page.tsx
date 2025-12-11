@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { loginUsuario } from "../../servicios/auth";
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const manejarLogin = async () => {
     setError(null);
@@ -20,7 +22,7 @@ export default function LoginPage() {
       // Guardar usuario en localStorage para usar en ranking o puntaje
       localStorage.setItem("usuario", JSON.stringify(data.data));
 
-      window.location.href = "/general/trivia";
+      router.push("/general/trivia");
     } catch (err: any) {
       setError(err.message || "Error al iniciar sesión");
     }

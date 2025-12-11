@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-// Obtener preguntas según filtros
+// Obtener preguntas segun los filtros
 export async function obtenerPreguntas({
   idTrivia,
   idDificultad,
@@ -19,7 +19,7 @@ export async function obtenerPreguntas({
   return data;
 }
 
-// Obtener respuestas de una pregunta
+//Obtener respuestas de una pregunta
 export async function obtenerRespuestas(idPregunta: number) {
   const res = await fetch(`${API_URL}/respuestas/${idPregunta}`);
   const data = await res.json();

@@ -14,21 +14,18 @@ const Ranking = sequelize.define(
     },
     idTrivia: {
       type: DataTypes.INTEGER,
-     
     },
     idDificultad: {
       type: DataTypes.INTEGER,
-     
     },
     idModalidad: {
       type: DataTypes.INTEGER,
-     
     },
-     tiempoInicio: {
+    fecha: {
       type: DataTypes.DATE,
     },
-     tiempoFin: {
-      type: DataTypes.DATE,
+    tiempo: {
+      type: DataTypes.TIME,
     },
     totalPuntos: {
       type: DataTypes.INTEGER,
@@ -36,7 +33,6 @@ const Ranking = sequelize.define(
     idUsuario: {
       type: DataTypes.INTEGER,
     },
-    
   },
   {
     tableName: "ranking",
@@ -44,35 +40,36 @@ const Ranking = sequelize.define(
   }
 );
 Ranking.belongsTo(Trivia, {
-   foreignKey: "idTrivia" ,
-   targetKey: "id"
-  });
-Trivia.hasMany(Ranking, { 
-  foreignKey: "idTrivia" 
+  foreignKey: "idTrivia",
+  targetKey: "id",
+  as: "trivia",
+});
+Trivia.hasMany(Ranking, {
+  foreignKey: "idTrivia",
 });
 
 Ranking.belongsTo(Dificultad, {
-   foreignKey: "idDificultad",
-    targetKey: "id"
-   });
-Dificultad.hasMany(Ranking, { 
-  foreignKey: "idDificultad" 
+  foreignKey: "idDificultad",
+  targetKey: "id",
+});
+Dificultad.hasMany(Ranking, {
+  foreignKey: "idDificultad",
 });
 
 Ranking.belongsTo(Modalidad, {
-   foreignKey: "idModalidad",
-    targetKey: "id"
-   });
+  foreignKey: "idModalidad",
+  targetKey: "id",
+});
 Modalidad.hasMany(Ranking, {
-   foreignKey: "idModalidad"
-   });
+  foreignKey: "idModalidad",
+});
 
-Ranking.belongsTo(Usuario, { 
-  foreignKey: "idUsuario", 
-  targetKey: "idUsuario"
+Ranking.belongsTo(Usuario, {
+  foreignKey: "idUsuario",
+  targetKey: "idUsuario",
 });
 Usuario.hasMany(Ranking, {
-   foreignKey: "idUsuario" 
-  });
+  foreignKey: "idUsuario",
+});
 
 module.exports = Ranking;

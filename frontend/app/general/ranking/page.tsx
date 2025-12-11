@@ -11,7 +11,7 @@ export default function RankingPage() {
   const idDificultad = Number(searchParams.get("idDificultad"));
   const idModalidad = Number(searchParams.get("idModalidad"));
 
-  // ✅ Validación fuerte
+  //Validacion fuerte
   if (!idTrivia || !idDificultad || !idModalidad) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -24,10 +24,12 @@ export default function RankingPage() {
 
   const [ranking, setRanking] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-
-  /* =========================
-     CARGAR RANKING
-  ========================= */
+  const [infoRanking, setInfoRanking] = useState<{ trivia: string, modalidad: string, dificultad: string }>({
+    trivia: "",
+    modalidad: "",
+    dificultad: "",
+  });
+//cargar el ranking
   useEffect(() => {
     async function cargar() {
       try {
@@ -36,7 +38,12 @@ export default function RankingPage() {
           idDificultad,
           idModalidad,
         });
-        setRanking(data);
+        setRanking(data.filas);
+        setInfoRanking({
+          trivia: data.trivia || "",
+          modalidad: data.modalidad || "",
+          dificultad: data.dificultad || "",
+        });
       } catch (error) {
         console.error("Error ranking:", error);
       } finally {
@@ -56,10 +63,14 @@ export default function RankingPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500 p-6">
+    <div className="min-h-screen flex items-center justify-center ">
       <div className="card" style={{ maxWidth: 720 }}>
         <h1 style={{ fontSize: 22, fontWeight: 900, textAlign: "center", marginBottom: 12 }}>🏆 Ranking</h1>
-
+        <div style={{ marginBottom: 18, textAlign: "center" }}>
+          <span style={{ fontWeight: 700 }}>Trivia:</span> {infoRanking.trivia} &nbsp;|&nbsp;
+          <span style={{ fontWeight: 700 }}>Modalidad:</span> {infoRanking.modalidad} &nbsp;|&nbsp;
+          <span style={{ fontWeight: 700 }}>Dificultad:</span> {infoRanking.dificultad}
+        </div>
         {ranking.length === 0 ? (
           <div style={{ textAlign: "center", padding: 24 }}>
             <p className="text-center text-gray-500">No hay resultados aún</p>
@@ -72,6 +83,7 @@ export default function RankingPage() {
                   <th style={{ textAlign: "left", padding: "8px 6px" }}>#</th>
                   <th style={{ textAlign: "left", padding: "8px 6px" }}>Usuario</th>
                   <th style={{ textAlign: "right", padding: "8px 6px" }}>Puntos</th>
+                  <th style={{ textAlign: "right", padding: "8px 6px" }}>Tiempo</th>
                 </tr>
               </thead>
 
@@ -79,8 +91,9 @@ export default function RankingPage() {
                 {ranking.map((r, i) => (
                   <tr key={r.id} style={{ borderBottom: "1px solid #f3f4f6" }}>
                     <td style={{ padding: "10px 6px" }}>{i + 1}</td>
-                    <td style={{ padding: "10px 6px" }}>{r.apodo || "Jugador"}</td>
+                    <td style={{ padding: "10px 6px" }}>{r.usuario.apodo || "Jugador"}</td>
                     <td style={{ padding: "10px 6px", textAlign: "right", fontWeight: 800 }}>{r.totalPuntos}</td>
+                    <td style={{ padding: "10px 6px", textAlign: "right", fontWeight: 800 }}>{r.tiempo}</td>
                   </tr>
                 ))}
               </tbody>

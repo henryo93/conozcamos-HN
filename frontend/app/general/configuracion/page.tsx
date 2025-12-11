@@ -6,12 +6,13 @@ import {
   obtenerDificultades,
   obtenerModalidades,
 } from "../../servicios/catalogos";
+import { useRouter } from 'next/navigation';
 
 export default function ConfiguracionPage() {
   const searchParams = useSearchParams();
   const idTrivia = Number(searchParams.get("idTrivia"));
+  const router = useRouter();
 
-  // ✅ Validación correcta
   if (!idTrivia || isNaN(idTrivia)) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -43,7 +44,7 @@ export default function ConfiguracionPage() {
       return alert("Selecciona dificultad y modalidad");
     }
 
-    window.location.href = `/general/juego?idTrivia=${idTrivia}&idDificultad=${idDificultad}&idModalidad=${idModalidad}`;
+    router.push(`/general/juego?idTrivia=${idTrivia}&idDificultad=${idDificultad}&idModalidad=${idModalidad}`);
   };
 
   return (
@@ -53,7 +54,7 @@ export default function ConfiguracionPage() {
 
         <div style={{ display: "grid", gap: 12 }}>
           <div>
-            <label style={{ fontWeight: 700 }}>Dificultad</label>
+            <label className="font-bold">Dificultad</label>
             <select
               className="form-input"
               onChange={(e) => {
@@ -72,7 +73,7 @@ export default function ConfiguracionPage() {
           </div>
 
           <div>
-            <label style={{ fontWeight: 700 }}>Modalidad</label>
+            <label className="font-bold">Modalidad</label>
             <select
               className="form-input"
               onChange={(e) => {
