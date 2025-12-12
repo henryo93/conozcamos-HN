@@ -1,25 +1,12 @@
+import { Ranking, RankingParams } from "../modelos/Ranking";
+
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-//ranking
-interface GuardarRankingDTO {
-  idTrivia: number;
-  idDificultad: number;
-  idModalidad: number;
-  idUsuario: number;
-  totalPuntos: number;
-  fecha: string; // iso string es lo que me sirvio
-  tiempo: string;    // tiempo en formato string
-}
 
-interface ObtenerRankingParams {
-  idTrivia?: number;
-  idDificultad?: number;
-  idModalidad?: number;
-}
 
 //Guardar rankings.
 
-export async function guardarRanking(datos: GuardarRankingDTO) {
+export async function guardarRanking(datos: Ranking) {
   const res = await fetch(`${API_URL}/ranking`, {
     method: "POST",
     headers: {
@@ -50,7 +37,7 @@ export async function guardarRanking(datos: GuardarRankingDTO) {
 }
 
 //obtener rankings
-export async function obtenerRanking(params: ObtenerRankingParams = {}) {
+export async function obtenerRanking(params: RankingParams = {}) {
   const query = new URLSearchParams();
 
   if (params.idTrivia !== undefined)

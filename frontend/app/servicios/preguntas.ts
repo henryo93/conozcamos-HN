@@ -1,16 +1,9 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-// Obtener preguntas segun los filtros
-export async function obtenerPreguntas({
-  idTrivia,
-  idDificultad,
-  idModalidad,
-}: {
-  idTrivia: number;
-  idDificultad: number;
-  idModalidad: number;
-}) {
-  const url = `${API_URL}/preguntas?idTrivia=${idTrivia}&idDificultad=${idDificultad}&idModalidad=${idModalidad}`;
+import { PreguntaParams } from "../modelos/Pregunta";
+// Obtener preguntas segun filtros
+export async function obtenerPreguntas(preguntaParams: PreguntaParams) {
+  const url = `${API_URL}/preguntas?idTrivia=${preguntaParams.idTrivia}&idDificultad=${preguntaParams.idDificultad}&idModalidad=${preguntaParams.idModalidad}`;
 
   const res = await fetch(url);
   const data = await res.json();

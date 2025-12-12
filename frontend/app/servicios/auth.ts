@@ -1,11 +1,10 @@
+import { Registro } from "../modelos/Registro";
+import { Login } from "../modelos/Login";
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
 // Registrar al usuario
-export async function registrarUsuario(datos: {
-  correo: string;
-  apodo: string;
-  contrasenia: string;
-}) {
+export async function registrarUsuario(datos: Registro) {
   const respuesta = await fetch(`${API_URL}/registro`, {
     method: "POST",
     headers: {
@@ -23,10 +22,7 @@ export async function registrarUsuario(datos: {
 }
 
 //Login
-export async function loginUsuario(datos: {
-  correo: string;
-  contrasenia: string;
-}) {
+export async function loginUsuario(datos: Login) {
   const respuesta = await fetch(`${API_URL}/login`, {
     method: "POST",
     headers: {
